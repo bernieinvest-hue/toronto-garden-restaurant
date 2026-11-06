@@ -47,12 +47,53 @@ filters.addEventListener('click', (event) => {
     button.classList.toggle('active', selected);
     button.setAttribute('aria-pressed', String(selected));
   });
-  let visibleCount = 0;
   menuItems.forEach((item) => {
     item.hidden = category !== 'all' && item.dataset.category !== category;
-    if (!item.hidden) visibleCount += 1;
   });
-  menuStatus.textContent = `${selectedButton.textContent}: ${visibleCount} items shown.`;
+  updateMenuStatus();
 });
 
 document.querySelector('#year').textContent = new Date().getFullYear();
+
+function updateMenuStatus() {
+  const activeFilter = filters.querySelector('[aria-pressed="true"]');
+  const visibleCount = Array.from(menuItems).filter((item) => !item.hidden).length;
+  menuStatus.textContent = document.documentElement.lang === 'zh-Hans'
+    ? `${activeFilter.textContent}：显示 ${visibleCount} 项。`
+    : `${activeFilter.textContent}: ${visibleCount} ${visibleCount === 1 ? 'item' : 'items'} shown.`;
+}
+
+const languageSwitch = document.querySelector('.language-switch');
+const languageButtons = languageSwitch.querySelectorAll('[data-language]');
+const translatedText = Array.from(document.querySelectorAll('[data-zh]'), (element) => ({
+  element,
+  english: element.textContent,
+}));
+const translatedAttributes = ['aria-label', 'alt', 'content'].flatMap((attribute) =>
+  Array.from(document.querySelectorAll(`[data-zh-${attribute}]`), (element) => ({
+    element,
+    attribute,
+    english: element.getAttribute(attribute),
+  })),
+);
+
+function setLanguage(language) {
+  const isChinese = language === 'zh-Hans';
+  document.documentElement.lang = language;
+  translatedText.forEach(({ element, english }) => {
+    element.textContent = isChinese ? element.dataset.zh : english;
+  });
+  translatedAttributes.forEach(({ element, attribute, english }) => {
+    const value = isChinese ? element.getAttribute(`data-zh-${attribute}`) : english;
+    element.setAttribute(attribute, value);
+  });
+  languageButtons.forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.language === language));
+  });
+  if (menuStatus.textContent) updateMenuStatus();
+}
+
+languageButtons.forEach((button) => {
+  button.addEventListener('click', () => setLanguage(button.dataset.language));
+});
+languageSwitch.hidden = false;
