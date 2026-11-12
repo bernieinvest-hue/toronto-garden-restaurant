@@ -21,3 +21,8 @@
 .footer-brand strong{font-weight:inherit}
 :lang(zh-Hans) h1,:lang(zh-Hans) h2{letter-spacing:0}
 @media(max-width:720px){.site-header{gap:10px}.site-header nav{order:1}.nav-toggle{margin-left:auto}.language-switch{gap:2px}}
+.welcome-message {
+  color: #203F31;
+  font-size: 22px;
+  font-weight: bold;
+}
